@@ -1,10 +1,13 @@
-import * as THREE from 'three';
-
 export interface ParticleData {
   position: [number, number, number];
   color: string;
   title: string;
   url: string;
+  symbol: string;
+  scale: number;
+  rotation: number;
+  drift: number;
+  depth: number;
 }
 
 const sites = [
@@ -20,30 +23,42 @@ const sites = [
   { title: "CSS-Tricks", url: "https://css-tricks.com" }
 ];
 
-const colors = [
-  '#00d9ff', // bright cyan
-  '#00e5ff', // cyan
-  '#00f0ff', // light cyan
-  '#00c9ff', // deeper cyan
-  '#00bfff', // deep sky blue
+const noteSymbols = [
+  '♪',
+  '♫',
+  '♬',
+  '♩',
+  '♭',
+  '♯',
+  '♮',
 ];
 
-export const particlesData: ParticleData[] = Array.from({ length: 150 }).map((_, i) => {
-  // Distribute particles randomly in a spherical volume
-  const radius = 10 + Math.random() * 60;
-  const theta = Math.random() * Math.PI * 2;
-  const phi = Math.acos(2 * Math.random() - 1);
+function seededRandom(index: number, salt = 0) {
+  const x = Math.sin(index * 127.1 + salt * 311.7) * 43758.5453;
+  return x - Math.floor(x);
+}
 
-  const x = radius * Math.sin(phi) * Math.cos(theta);
-  const y = radius * Math.sin(phi) * Math.sin(theta);
-  const z = radius * Math.cos(phi);
-
-  const site = sites[Math.floor(Math.random() * sites.length)];
+export const particlesData: ParticleData[] = Array.from({ length: 158 }).map((_, i) => {
+  const site = sites[Math.floor(seededRandom(i, 0) * sites.length)];
+  const depth = seededRandom(i, 3);
+  const layer = Math.floor(depth * 5);
+  const perspective = 0.55 + depth * 1.25;
+  const width = 54 + layer * 24;
+  const height = 30 + layer * 8;
+  const x = (seededRandom(i, 1) - 0.5) * width;
+  const y = -9 + seededRandom(i, 2) * height;
+  const z = -16 - depth * 118;
+  const scale = (0.9 + seededRandom(i, 4) * 2.35) / perspective;
 
   return {
     position: [x, y, z],
-    color: colors[Math.floor(Math.random() * colors.length)],
+    color: '#f8fbff',
     title: `${site.title} Node ${i}`,
-    url: site.url
+    url: site.url,
+    symbol: noteSymbols[i % noteSymbols.length],
+    scale,
+    rotation: -1.05 + seededRandom(i, 5) * 2.1,
+    drift: 0.16 + seededRandom(i, 6) * 0.34,
+    depth,
   };
 });
