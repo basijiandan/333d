@@ -78,6 +78,8 @@ const translations = {
     resetView: '視点リセット',
     startRoute: '開始',
     restartRoute: '再開',
+    routeAuto: '自動でルートが移動します。ドラッグとスクロールで自由に視点を変更できます。',
+    dismiss: '閉じる',
   },
   ko: {
     title: '넥서스',
@@ -96,10 +98,12 @@ const translations = {
     destination: '목적지',
     nodeStatus: '노드 상태',
     stable: '안정됨',
-    tracking: '追跡中...',
-    resetView: '視点リセット',
-    startRoute: '開始',
-    restartRoute: '再開',
+    tracking: '추적 중...',
+    resetView: '시점 초기화',
+    startRoute: '시작',
+    restartRoute: '다시 시작',
+    routeAuto: '자동으로 경로가 움직입니다. 드래그와 스크롤로 자유롭게 시점을 변경할 수 있습니다.',
+    dismiss: '닫기',
   }
 };
 
