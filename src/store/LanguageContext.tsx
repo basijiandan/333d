@@ -28,6 +28,10 @@ const translations = {
     stable: 'Stable',
     tracking: 'Tracking...',
     resetView: 'Reset View',
+    startRoute: 'Start Route',
+    restartRoute: 'Restart Route',
+    routeAuto: 'Automatic route motion; drag and scroll to look around.',
+    dismiss: 'Dismiss',
   },
   zh: {
     title: '声成',
@@ -48,6 +52,10 @@ const translations = {
     stable: '稳定',
     tracking: '追踪中...',
     resetView: '重置视角',
+    startRoute: '开始',
+    restartRoute: '重新开始',
+    routeAuto: '路线自动前进，拖拽滚轮可自由视角。',
+    dismiss: '关闭',
   },
   ja: {
     title: 'ネクサス',
@@ -68,6 +76,8 @@ const translations = {
     stable: '安定',
     tracking: '追跡中...',
     resetView: '視点リセット',
+    startRoute: '開始',
+    restartRoute: '再開',
   },
   ko: {
     title: '넥서스',
@@ -86,8 +96,10 @@ const translations = {
     destination: '목적지',
     nodeStatus: '노드 상태',
     stable: '안정됨',
-    tracking: '추적 중...',
-    resetView: '시점 초기화',
+    tracking: '追跡中...',
+    resetView: '視点リセット',
+    startRoute: '開始',
+    restartRoute: '再開',
   }
 };
 

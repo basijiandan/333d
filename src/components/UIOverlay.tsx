@@ -1,10 +1,18 @@
 import { Move, MousePointer2, Globe2, X } from 'lucide-react';
 import { useLanguage } from '../store/LanguageContext';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export function UIOverlay() {
   const { lang, setLang, t } = useLanguage();
-  const [showNavControl, setShowNavControl] = useState(true);
+  const [showGuide, setShowGuide] = useState(true);
+  const [routeStarted, setRouteStarted] = useState(false);
+  const [routeEnded, setRouteEnded] = useState(false);
+
+  useEffect(() => {
+    const onRouteEnd = () => setRouteEnded(true);
+    window.addEventListener('route-end', onRouteEnd);
+    return () => window.removeEventListener('route-end', onRouteEnd);
+  }, []);
 
   return (
     <div className="absolute inset-0 w-full h-full pointer-events-none flex flex-col justify-between z-10 text-slate-200 font-sans">
@@ -13,14 +21,12 @@ export function UIOverlay() {
       
       {/* Top right Language Switcher */}
       <div className="absolute top-6 right-6 z-20 flex bg-slate-900/50 backdrop-blur border border-white/10 p-1 rounded-lg pointer-events-auto">
-         {(['zh', 'en', 'ja', 'ko'] as const).map(l => (
+         {(['zh', 'en'] as const).map(l => (
             <button
               key={l}
               onClick={() => setLang(l)}
               className={`px-3 py-1.5 rounded text-xs font-mono font-bold transition-colors ${
-                lang === l 
-                  ? 'bg-cyan-500/20 text-cyan-400' 
-                  : 'text-slate-400 hover:text-white'
+                lang === l ? 'bg-cyan-500/20 text-cyan-400' : 'text-slate-400 hover:text-white'
               }`}
             >
               {l.toUpperCase()}
@@ -36,61 +42,59 @@ export function UIOverlay() {
            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
            <span className="text-[10px] font-mono text-emerald-500/80 uppercase tracking-tighter">{t('desc')}</span>
         </div>
-        <button 
-          onClick={() => window.dispatchEvent(new CustomEvent('reset-view'))}
-          className="mt-4 px-4 py-2 bg-white/5 border border-white/10 hover:bg-white/10 transition-colors text-xs font-mono font-bold uppercase tracking-widest self-start rounded-lg text-slate-300 hover:text-white flex items-center gap-2"
-        >
-          <Globe2 className="w-4 h-4" />
-          {t('resetView')}
-        </button>
       </header>
 
       <main className="relative flex-1 flex pointer-events-none animate-fade-in-up">
-        {/* Navigation Control Grouped Container */}
-        {showNavControl && (
-          <div className="absolute left-6 bottom-6 z-20 flex flex-col gap-4 pointer-events-auto">
-            <div className="p-4 bg-slate-900/80 backdrop-blur-xl border border-white/10 rounded-lg shadow-2xl w-56 flex flex-col gap-4 relative">
+        {showGuide ? (
+          <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none px-6">
+            <div className="w-full max-w-sm p-5 bg-slate-950/95 backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl pointer-events-auto">
               <button
-                onClick={() => setShowNavControl(false)}
-                className="absolute top-2 right-2 p-1 hover:bg-white/10 rounded transition-colors text-slate-400 hover:text-white"
-                title="Hide"
+                onClick={() => {
+                  if (routeEnded) {
+                    setRouteEnded(false);
+                    setRouteStarted(true);
+                    setShowGuide(false);
+                    window.dispatchEvent(new CustomEvent('reset-view'));
+                    window.dispatchEvent(new CustomEvent('start-route'));
+                  } else {
+                    setRouteStarted(true);
+                    setShowGuide(false);
+                    window.dispatchEvent(new CustomEvent('start-route'));
+                  }
+                }}
+                className="w-full inline-flex items-center justify-center gap-2 rounded-2xl bg-cyan-500/15 border border-cyan-400/20 px-4 py-3 text-xs uppercase tracking-[0.32em] text-cyan-200 hover:bg-cyan-500/20 transition"
               >
-                <X className="w-4 h-4" />
+                <Globe2 className="w-4 h-4" />
+                {routeEnded ? t('restartRoute') : t('startRoute')}
               </button>
-              <div className="text-[10px] text-slate-500 uppercase font-bold tracking-widest">{t('navCtrl')}</div>
-              <div className="flex flex-col gap-4">
-                {/* WASD Legend */}
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded border border-white/20 bg-white/5 flex items-center justify-center shrink-0">
-                    <Move className="w-4 h-4 text-cyan-400" />
-                  </div>
-                  <div className="flex flex-col">
-                    <div className="font-semibold text-xs tracking-wide text-white uppercase">{t('wasdKeys')}</div>
-                    <div className="text-[10px] text-slate-400">{t('moveCamera')}</div>
-                  </div>
-                </div>
-
-                {/* Mouse Legend */}
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded border border-white/20 bg-white/5 flex items-center justify-center shrink-0">
-                    <MousePointer2 className="w-4 h-4 text-purple-400" />
-                  </div>
-                  <div className="flex flex-col">
-                    <div className="font-semibold text-xs tracking-wide text-white uppercase">{t('dragScroll')}</div>
-                    <div className="text-[10px] text-slate-400">{t('rotateZoom')}</div>
-                  </div>
-                </div>
-              </div>
+              <button
+                onClick={() => setShowGuide(false)}
+                className="mt-4 w-full text-xs uppercase tracking-[0.32em] text-slate-400 hover:text-white transition"
+              >
+                {t('dismiss')}
+              </button>
             </div>
           </div>
-        )}
-        {!showNavControl && (
+        ) : (
           <button
-            onClick={() => setShowNavControl(true)}
+            onClick={() => setShowGuide(true)}
             className="absolute left-6 bottom-6 z-20 px-3 py-2 bg-slate-900/80 backdrop-blur-xl border border-white/10 rounded-lg hover:bg-slate-900 transition-colors text-[10px] font-mono text-slate-400 hover:text-white pointer-events-auto"
-            title="Show Navigation Control"
           >
-            Show Control
+            Show Guide
+          </button>
+        )}
+
+        {routeEnded && !showGuide && (
+          <button
+            onClick={() => {
+              setRouteEnded(false);
+              setRouteStarted(true);
+              window.dispatchEvent(new CustomEvent('reset-view'));
+              window.dispatchEvent(new CustomEvent('start-route'));
+            }}
+            className="absolute left-6 bottom-20 z-20 px-3 py-2 bg-cyan-500/20 backdrop-blur-xl border border-cyan-400/30 rounded-lg hover:bg-cyan-500/30 transition-colors text-[10px] font-mono text-cyan-200 hover:text-white pointer-events-auto"
+          >
+            {t('restartRoute')}
           </button>
         )}
       </main>
